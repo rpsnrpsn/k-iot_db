@@ -20,3 +20,24 @@
 	
     ALTER TABLE teams ADD COLUMN player_count INT DEFAULT 0;
 */
+
+use `baseball_league`;
+
+create table if not exists player_delete_logs (
+	log_id int auto_increment primary key,
+    player_name varchar(50),
+    deleted_time datetime
+);
+
+drop trigger if exists `after_player_delete`;
+
+delimiter $$
+create trigger `after_player_delete`
+	after delete
+    on `players`
+    for each row
+begin
+	insert into `player_delete_logs` (player_name, deleted_time)
+	values(OLD.name, now());
+end $$
+delimiter ;
